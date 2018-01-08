@@ -1,5 +1,5 @@
 // block Break Original
-// by narumincho 2018/ 1/ 8
+// by narumincho 2018/ 1/ 9
 
 final int blockNum = 20;
 Planet planet = new Planet();
@@ -43,7 +43,7 @@ void draw() {
 }
 
 class Planet {
-  PVector position = new PVector(0, 0);
+  PVector position = vec(0, 0);
   final int radius = 50;
   boolean isVacuum = true;
   int flareCount = 0;
@@ -85,11 +85,15 @@ class Planet {
 }
 
 class Enemy {
-  PVector position = new PVector(random(0, width), random(0, height));
+  PVector position = vec(random(0, width), random(0, height));
   final int radius = 25;
   boolean broken = false;
+  int lifeTime = 30;
   void update() {
     if (broken) {
+      if (0<lifeTime) {
+        lifeTime = lifeTime -1;
+      }
       return;
     }
     if ( position.dist(ball.position) < radius+ball.radius ) {
@@ -98,11 +102,23 @@ class Enemy {
   }
   void draw() {
     if (broken) {
+      if (lifeTime==0) {
+        return;
+      }
+      fill(#9C27B0, lifeTime*256/30);
+      noStroke();
+      circle(position, radius - 5);      
+      stroke(#000000);
+      strokeWeight(1);
+      line(position.copy().add(vec(-2, 0)), position.copy().add(vec(-15, -15)));
+      line(position.copy().add(vec(-15, 0)), position.copy().add(vec( -2, -15)));
+      line(position.copy().add(vec( 2, 0)), position.copy().add(vec( 15, -15)));
+      line(position.copy().add(vec( 15, 0)), position.copy().add(vec(  2, -15)));
       return;
     }
     fill(#9C27B0);
     noStroke();
-    circle(position, 25);
+    circle(position, radius);
     fill(#000000);
     triangle(position.x - 20, position.y - 10, position.x - 15, position.y, position.x - 2, position.y);
     triangle(position.x + 20, position.y - 10, position.x + 15, position.y, position.x + 2, position.y);
@@ -110,8 +126,8 @@ class Enemy {
 }
 
 class Ball {
-  PVector position = new PVector(30, 0);
-  PVector velocity = new PVector(0, 0);
+  PVector position = vec(30, 0);
+  PVector velocity = vec(0, 0);
   PVector[] predictionOrbit = new PVector[240];
   final int radius = 10;
   void update() {
@@ -123,20 +139,22 @@ class Ball {
     for (int i=0; i<predictionOrbit.length - 1; i++) {
       final PVector pos = predictionOrbit[i].copy();
       gravitation(pos, vel);
-      wallCollision(pos, vel);      
-      predictionOrbit[i+1]= pos;
+      wallCollision(pos, vel);
+      predictionOrbit[i+1] = pos;
     }
   }
   void gravitation(PVector position, PVector velocity) {
     final float distance = planet.position.copy().sub(position).mag();
-    final PVector toPlanet = planet.position.copy().sub(position).normalize();
-    if (planet.isVacuum) {
-      velocity.add(toPlanet.setMag(50/distance));
-    } else {
-      velocity.sub(toPlanet.setMag(50/distance));
-    }
-    if (10<velocity.mag()) {
-      velocity.setMag(10);
+    if (distance != 0.0) {
+      final PVector toPlanet = planet.position.copy().sub(position).normalize();
+      if (planet.isVacuum) {
+        velocity.add(toPlanet.setMag(50/distance));
+      } else {
+        velocity.sub(toPlanet.setMag(50/distance));
+      }
+      if (10<velocity.mag()) {
+        velocity.setMag(10);
+      }
     }
     position.add(velocity);
   }
@@ -185,17 +203,19 @@ void checkClear() {
 void drawHowToUse() {
   fill(#ffffff);
   textSize(40);
+  textAlign(LEFT, BOTTOM);
   if (planet.isVacuum) {
-    text("click <<o>>", 0, height-40);
+    text("click <<o>>", 0, height);
   } else {
-    text("click >>o<<", 0, height-40);
+    text("click >>o<<", 0, height);
   }
 }
 
 void drawTime() {
   fill(#ffffff);
   textSize(50);
-  text("time="+str(time), 0, 50);
+  textAlign(LEFT, TOP);
+  text("time="+str(time), 0, 0);
 }
 
 
@@ -215,4 +235,8 @@ void rect(PVector position, PVector size) {
 
 void line(PVector position0, PVector position1) {
   line(position0.x, position0.y, position1.x, position1.y);
+}
+
+PVector vec(float x, float y) {
+  return new PVector(x, y);
 }
