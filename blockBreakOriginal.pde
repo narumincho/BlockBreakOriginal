@@ -1,6 +1,14 @@
 // block Break Original
 // by narumincho 2018/ 1/ 9
 
+// 追加機能:
+// ・ボールを当てて跳ね返すのではなく引くか離すかで制御する
+// ・ボールの軌道がわかる
+
+// プレイ方法:
+// ・マウスで引力元を左右に動かし、すべての敵を倒す時間を競う
+// ・クリックでボールを引くか離すかを切り替えることができる
+
 final int blockNum = 20;
 Planet planet = new Planet();
 Ball ball = new Ball();
